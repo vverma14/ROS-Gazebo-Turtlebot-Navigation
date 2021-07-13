@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+
+import rospy
+
+from collections import deque
+from geometry_msgs.msg import Twist
+
+
+def navigate(topic, cmds):
+    '''
+        Teleoperates a TurtleBot at the given topic.
+
+        topic: the cmd_vel topic for the TurtleBot
+        cmds: a list of command tuples in
+              (linear x, angular z, time) format
+    '''
+
+    # FIXME: a PID controller would be better
+    pub = rospy.Publisher(topic, Twist, queue_size=10)
+
+    rate = rospy.Rate(10)
+
+    turtle_twist = Twist()
+
+    cmd_queue = deque(cmds)
+
+    old_time = None
+    cmd = cmd_queue.popleft()
+    print("Processing Command: ", cmd)
+
+    # main command processing loop
+    while not rospy.is_shutdown():
+        cur_time = rospy.get_time()
+
+        # wait for time to initialize
+        if cur_time == 0:
+            continue
+
+        if old_time is None:
+            old_time = cur_time
+
+        dt = cur_time - old_time
+
+        # set the Twist message
+        clx, cwz, cdt = cmd
+
+        turtle_twist.linear.x = clx
+        turtle_twist.angular.z = cwz
+
+        # if the time elapsed, go to next command
+        if dt > cdt:
+            old_time = cur_time
+
+            if cmd_queue:
+                cmd = cmd_queue.popleft()
+                print("Processing Command: ", cmd)
+            else:
+                break
+
+        # publish twist message
+        pub.publish(turtle_twist)
+        rate.sleep()
+
+
+if __name__ == "__main__":
+    rospy.init_node('turtlebot_navigate')
+
+    try:
+        # list of motion commands
+        # lin_x, ang_z, time (s)
+        cmd_nav = [
+            # living room
+            (0.2, 0.0, 8.0),
+            (0.2, -0.3, 5.0),
+
+            # kitchen
+            (0.2, 0.0, 6.5),
+            (0.2, -0.3, 5.0),
+            (0.2, 0.0, 16.0),
+
+            # bedroom 1
+            (0.2, -0.3, 4.5),
+            (0.2, 0.0, 11.2),
+
+            # hallway (post office)
+            (0.2, 0.3, 5.0),
+            (0.2, 0.0, 1.0),
+
+            # hallway 2
+            (0.2, -0.3, 6.0),
+            (0.2, 0.0, 13.25),
+            (0.2, -0.3, 4.5),
+            (0.2, 0.0, 20.0),
+
+            # initials (it's mirrored...)
+            (0.2, 0.0, 8),
+            (0.3, -0.3, 18),
+            (0.0, 0.0, 1),
+            (0.0, -0.5, 3),
+            (0.2, 0.0, 4),
+            (0.0, 0.0, 1),
+            (0.0, -0.5, 3),
+            (0.2, 0.0, 3),
+            (0, 0, 1)
+        ]
+
+        navigate('cmd_vel', cmd_nav)
+
+    except rospy.ROSInterruptException:
+        pass

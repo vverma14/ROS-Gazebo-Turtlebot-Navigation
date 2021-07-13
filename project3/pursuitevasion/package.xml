@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>pursuitevasion</name>
+  <version>0.0.0</version>
+  <description>CSE598 Perception in Robotics (Spring 2020) Project 3</description>
+
+  <maintainer email="zgiacome@asu.edu">Zakk Giacometti</maintainer>
+  <maintainer email="vsrini18@asu.edu">Venkateshwaran Srinivasan</maintainer>
+  <maintainer email="vverma14@asu.edu">Vivek Verma</maintainer>
+
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>turtlebot3_description</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+
+  <export>
+  </export>
+</package>

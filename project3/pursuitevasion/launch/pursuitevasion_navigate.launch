@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find pursuitevasion)/launch/pursuitevasion_world.launch" />
+  <include file="$(find pursuitevasion)/launch/pursuitevasion_gazebo_rviz.launch" />
+  <node pkg="pursuitevasion" type="navigate" name="navigate" />
+</launch>
